@@ -1,4 +1,4 @@
-# Ex2 - Cloud Computin
+# Ex2 - Cloud Computing
 Queue & work management system for parallel processing.
 
 #### Region:

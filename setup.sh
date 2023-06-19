@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ACCESS_KEY_ID=$(aws configure get aws_access_key_id)
 SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key)
 KEY_NAME="cloud-course-`date +'%N'`"
@@ -21,15 +23,15 @@ MY_IP=$(curl ipinfo.io/ip)
 echo "My IP: $MY_IP"
 
 
-echo "setup rule allowing SSH access to $MY_IP only"
+echo "setup rule allowing SSH access to only ips"
 aws ec2 authorize-security-group-ingress        \
     --group-name $SEC_GRP --port 22 --protocol tcp \
-    --cidr $MY_IP/32
+    --cidr 0.0.0.0/0
 
-echo "setup rule allowing HTTP (port 5000) access to $MY_IP only"
+echo "setup rule allowing HTTP (port 5000) access to all ips"
 aws ec2 authorize-security-group-ingress        \
     --group-name $SEC_GRP --port 5000 --protocol tcp \
-    --cidr $MY_IP/32
+    --cidr 0.0.0.0/0
 
 UBUNTU_20_04_AMI="ami-042e8287309f5df03"
 
@@ -100,7 +102,8 @@ ssh -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=60" ubuntu@
     exit
 EOF
 
-
+sleep 90
 echo "test that it all worked"
-curl  --retry-connrefused --retry 10 --retry-delay 1  http://$PUBLIC_IP1:5000
-curl  --retry-connrefused --retry 10 --retry-delay 1  http://$PUBLIC_IP2:5000
+
+curl   http://$PUBLIC_IP1:5000
+curl   http://$PUBLIC_IP2:5000

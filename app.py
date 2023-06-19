@@ -13,7 +13,7 @@ first_endpoint_ip = sys.argv[1]
 second_endpoint_ip = sys.argv[2]
 access_key_id = sys.argv[3]
 secret_access_key = sys.argv[4]
-sec_grp = sys.argv[5]
+key_name = sys.argv[5]
 
 session = boto3.Session(
     region_name='us-east-1',
@@ -71,7 +71,6 @@ def pullCompleted():
 @app.route('/get_next_work')
 def get_next_work():
     if len(work_q) > 0:
-        print(work_q.pop(0))
         return {'work': work_q.pop(0), 'status_code': 200} 
     return {"status_code": 404}
 
@@ -88,14 +87,12 @@ def getCompletedWorkQ():
     }
 
 def createNewWorker():
-    security_group = ec2Client.describe_security_groups(Filters=[dict(Name="group-name", Values=[sec_grp])])
-    security_group_id = security_group['SecurityGroups'][0]['GroupId']
     instance = ec2Resource.create_instances(
         MinCount=1,
         MaxCount=1,
         ImageId="ami-042e8287309f5df03",
         InstanceType="t2.micro",
-        KeyName="cloud-course-$(date +%s)",
+        KeyName=key_name,
         UserData=f"""#!/bin/bash
                 set -e -x
                 sudo apt update
@@ -114,7 +111,6 @@ def createNewWorker():
     instance[0].wait_until_running()
     instance[0].reload()
     data = ec2Client.authorize_security_group_ingress(
-        GroupId=security_group_id,
         IpPermissions=[
             {'IpProtocol': 'tcp',
             'FromPort': 5000,

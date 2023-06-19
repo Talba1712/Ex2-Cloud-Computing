@@ -85,7 +85,7 @@ ssh -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=60" ubuntu@
     sudo apt install python3-pip -y
     pip install boto3
     # run app
-    nohup python3 app.py $PUBLIC_IP1 $PUBLIC_IP2 $ACCESS_KEY_ID $SECRET_ACCESS_KEY &>/dev/null &
+    nohup python3 app.py $PUBLIC_IP1 $PUBLIC_IP2 $ACCESS_KEY_ID $SECRET_ACCESS_KEY $KEY_NAME &>/dev/null &
     nohup python3 worker.py $PUBLIC_IP1 $PUBLIC_IP2 &>/dev/null &
     exit
 EOF
@@ -98,12 +98,11 @@ ssh -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=60" ubuntu@
     sudo apt install python3-pip -y
     pip install boto3
     # run app
-    nohup python3 app.py $PUBLIC_IP2 $PUBLIC_IP1 $ACCESS_KEY_ID $SECRET_ACCESS_KEY &>/dev/null &
+    nohup python3 app.py $PUBLIC_IP2 $PUBLIC_IP1 $ACCESS_KEY_ID $SECRET_ACCESS_KEY $KEY_NAME &>/dev/null &
     nohup python3 worker.py $PUBLIC_IP2 $PUBLIC_IP1 &>/dev/null &
     exit
 EOF
 
-sleep 90
 echo "All is set. You can now make https requests."
 echo "First IP: $PUBLIC_IP1"
 echo "Second IP: $PUBLIC_IP2"

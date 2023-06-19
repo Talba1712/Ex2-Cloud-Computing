@@ -13,6 +13,7 @@ first_endpoint_ip = sys.argv[1]
 second_endpoint_ip = sys.argv[2]
 access_key_id = sys.argv[3]
 secret_access_key = sys.argv[4]
+sec_grp = sys.argv[5]
 
 session = boto3.Session(
     region_name='us-east-1',
@@ -70,8 +71,9 @@ def pullCompleted():
 @app.route('/get_next_work')
 def get_next_work():
     if len(work_q) > 0:
-        return {'work': work_q.pop(0)}, 200 
-    return '' , 404 
+        print(work_q.pop(0))
+        return {'work': work_q.pop(0), 'status_code': 200} 
+    return {"status_code": 404}
 
 @app.route('/completed_work')
 def completed_work():
@@ -86,7 +88,7 @@ def getCompletedWorkQ():
     }
 
 def createNewWorker():
-    security_group = ec2Client.describe_security_groups(Filters=[dict(Name="group-name", Values=['my-sg'])])
+    security_group = ec2Client.describe_security_groups(Filters=[dict(Name="group-name", Values=[sec_grp])])
     security_group_id = security_group['SecurityGroups'][0]['GroupId']
     instance = ec2Resource.create_instances(
         MinCount=1,

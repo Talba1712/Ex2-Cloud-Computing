@@ -102,7 +102,6 @@ ssh -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=60" ubuntu@
 EOF
 
 sleep 90
-echo "Test that it all worked"
-
-curl   http://$PUBLIC_IP1:5000
-curl   http://$PUBLIC_IP2:5000
+echo "All is set. You can now make https requests."
+echo "First IP: $PUBLIC_IP1"
+echo "Second IP: $PUBLIC_IP2"

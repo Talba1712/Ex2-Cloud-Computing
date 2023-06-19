@@ -27,11 +27,9 @@ def get_work_to_do():
 def worker():
     while True:
         work_to_do = get_work_to_do()
-        print(work_to_do)
         if work_to_do['status_code'] != 200:
             time.sleep(10)
             continue 
-        print(work_to_do.json()['work'])
         work_to_do = work_to_do.json()['work']
         if work_to_do is None:
             time.sleep(10)

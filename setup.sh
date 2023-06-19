@@ -2,16 +2,15 @@
 
 ACCESS_KEY_ID=$(aws configure get aws_access_key_id)
 SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key)
-KEY_NAME="cloud-course-`date +'%N'`"
+KEY_NAME="cloud-course-$(date +%s)"
 KEY_PEM="$KEY_NAME.pem"
-
 echo "create key pair $KEY_PEM to connect to instances and save locally"
 aws ec2 create-key-pair --key-name $KEY_NAME | jq -r ".KeyMaterial" > $KEY_PEM
 
 # secure the key pair
 chmod 400 $KEY_PEM
 
-SEC_GRP="my-sg-`date +'%N'`"
+SEC_GRP="my-sg-$(date +%s)"
 
 echo "setup firewall $SEC_GRP"
 aws ec2 create-security-group   \

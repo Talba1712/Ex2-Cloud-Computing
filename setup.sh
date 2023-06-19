@@ -74,8 +74,8 @@ echo "New instance $INSTANCE_ID2 @ $PUBLIC_IP2"
 
 
 echo "deploying code to production"
-scp -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=60" app.py ubuntu@$PUBLIC_IP1:/home/ubuntu/
-scp -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=60" app.py ubuntu@$PUBLIC_IP2:/home/ubuntu/
+scp -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=60" app.py worker.py ubuntu@$PUBLIC_IP1:/home/ubuntu/
+scp -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=60" app.py worker.py ubuntu@$PUBLIC_IP2:/home/ubuntu/
 
 echo "setup production environment for the first instance"
 ssh -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=60" ubuntu@$PUBLIC_IP1 <<EOF
@@ -86,6 +86,7 @@ ssh -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=60" ubuntu@
     pip install boto3
     # run app
     nohup python3 app.py $PUBLIC_IP1 $PUBLIC_IP2 $ACCESS_KEY_ID $SECRET_ACCESS_KEY &>/dev/null &
+    nohup python3 worker.py $PUBLIC_IP1 $PUBLIC_IP2 &>/dev/null &
     exit
 EOF
 
@@ -98,6 +99,7 @@ ssh -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=60" ubuntu@
     pip install boto3
     # run app
     nohup python3 app.py $PUBLIC_IP2 $PUBLIC_IP1 $ACCESS_KEY_ID $SECRET_ACCESS_KEY &>/dev/null &
+    nohup python3 worker.py $PUBLIC_IP2 $PUBLIC_IP1 &>/dev/null &
     exit
 EOF
 

@@ -1,4 +1,4 @@
-from flask import Flask, request, session
+from flask import Flask, request, session, jsonify
 import json
 import uuid
 import boto3
@@ -14,6 +14,7 @@ second_endpoint_ip = sys.argv[2]
 access_key_id = sys.argv[3]
 secret_access_key = sys.argv[4]
 key_name = sys.argv[5]
+sec_grp = sys.argv[6]
 
 session = boto3.Session(
     region_name='us-east-1',
@@ -33,7 +34,7 @@ workers = []
 @app.route('/enqueue', methods=['PUT'])
 def enqueue():
     iterations = int(request.args.get('iterations'))
-    data = request.get_data(as_text=True)
+    data = request.data.decode('utf-8')
     work_id = str(uuid.uuid1())
     work_entry_time = time.time()
     work_q.append({'work_id': work_id, 'work_entry_time': work_entry_time, 'iterations': iterations, 'data': data})
@@ -61,20 +62,20 @@ def pullCompleted():
     k = min(top, len(all_completed_work))
     for i in range(k):
         work = all_completed_work.pop()
-        res.append(json.load(work)) 
-
+        res.append(work)
+        
     return {
         'statusCode': 200,
         'body': json.dumps({'latest_completed_work_items': res})
     }
 
-@app.route('/get_next_work')
+@app.route('/get_next_work', methods=['GET'])
 def get_next_work():
     if len(work_q) > 0:
         return {'work': work_q.pop(0), 'status_code': 200} 
-    return {"status_code": 404}
+    return jsonify ({"status_code": 404})
 
-@app.route('/completed_work')
+@app.route('/completed_work', methods=['POST'])
 def completed_work():
     completed_work_q.append((request.form.get('work_id'), request.form.get('result')))
     return '', 200
@@ -87,11 +88,13 @@ def getCompletedWorkQ():
     }
 
 def createNewWorker():
+    security_group = ec2Client.describe_security_groups(Filters=[dict(Name="group-name", Values=[sec_grp])])
+    security_group_id = security_group['SecurityGroups'][0]['GroupId']
     instance = ec2Resource.create_instances(
         MinCount=1,
         MaxCount=1,
         ImageId="ami-042e8287309f5df03",
-        InstanceType="t2.micro",
+        InstanceType="t3.micro",
         KeyName=key_name,
         UserData=f"""#!/bin/bash
                 set -e -x
@@ -111,6 +114,7 @@ def createNewWorker():
     instance[0].wait_until_running()
     instance[0].reload()
     data = ec2Client.authorize_security_group_ingress(
+        GroupId=security_group_id,
         IpPermissions=[
             {'IpProtocol': 'tcp',
             'FromPort': 5000,

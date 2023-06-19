@@ -102,7 +102,7 @@ ssh -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=60" ubuntu@
 EOF
 
 sleep 90
-echo "test that it all worked"
+echo "Test that it all worked"
 
 curl   http://$PUBLIC_IP1:5000
 curl   http://$PUBLIC_IP2:5000

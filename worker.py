@@ -9,27 +9,30 @@ cur_ip = parent_ip
 def get_work_to_do():
     try:
         cur_ip = parent_ip
-        work_item = requests.get(f'http://{parent_ip}:5000/get_next_work')       
+        work_item = requests.get(f'http://{parent_ip}:5000/get_next_work')
+        status_code = int (work_item.status_code)
     except:
-        return '', 400
-        
-    if work_item.status_code != 200:
+        return {"status_code":400}
+    if status_code != 200:
         try:
             cur_ip = other_ip
             work_item = requests.get(f'http://{other_ip}:5000/get_next_work')
+            status_code = int (work_item.status_code)
         except:
-            return '', 400
-        if work_item.status_code != 200:
-            return '', 404 
-    return work_item 
+            return {"status_code":400}
+        if status_code != 200:
+            return {"status_code":404}
+    return work_item.json()
 
 def worker():
     while True:
         work_to_do = get_work_to_do()
-        if work.status_code != 200:
+        print(work_to_do)
+        if work_to_do['status_code'] != 200:
             time.sleep(10)
             continue 
-        work_to_do = work_to_do['work']
+        print(work_to_do.json()['work'])
+        work_to_do = work_to_do.json()['work']
         if work_to_do is None:
             time.sleep(10)
             continue
@@ -39,7 +42,8 @@ def worker():
 
 def work(buffer, iterations):
     import hashlib
-    output = hashlib.sha512(buffer).digest()
+    buffer_bytes = buffer.encode('utf-8')
+    output = hashlib.sha512(buffer_bytes).digest()
     for i in range(iterations - 1):
         output = hashlib.sha512(output).digest()
     return output

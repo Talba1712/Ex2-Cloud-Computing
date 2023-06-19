@@ -15,6 +15,7 @@ access_key_id = sys.argv[3]
 secret_access_key = sys.argv[4]
 
 session = boto3.Session(
+    region_name='us-east-1',
     aws_access_key_id=access_key_id,
     aws_secret_access_key=secret_access_key
 )
@@ -28,20 +29,19 @@ work_q = []
 completed_work_q = []
 workers = []
 
-@app.route('/enqueue')
+@app.route('/enqueue', methods=['PUT'])
 def enqueue():
     iterations = int(request.args.get('iterations'))
-    data = str(request.files['data'].read())
+    data = request.get_data(as_text=True)
     work_id = str(uuid.uuid1())
     work_entry_time = time.time()
     work_q.append({'work_id': work_id, 'work_entry_time': work_entry_time, 'iterations': iterations, 'data': data})
-
     return {
         'statusCode': 200,
         'body': json.dumps({'work_id': work_id})
     }
 
-@app.route('/pullCompleted')
+@app.route('/pullCompleted', methods=['POST'])
 def pullCompleted():
     top = int(request.args.get('top'))
     other_endpoint_completed_work_q = []
@@ -133,7 +133,7 @@ def scaling():
                 new_worker_id = createNewWorker()
                 workers.append(new_worker_id)
                 create_new_worker = True
-        if not create_new_worker:
+        if not create_new_worker and len(workers) > 0:
             ec2Resource.instances.filter(InstanceIds = workers[0]).terminate()
 
 thread = threading.Thread(target=scaling)

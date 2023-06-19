@@ -2,8 +2,8 @@ import requests
 import time
 import sys 
 
-parent_ip = sys.arg[1]
-other_ip = sys.arg[2]
+parent_ip = sys.argv[1]
+other_ip = sys.argv[2]
 cur_ip = parent_ip
 
 def get_work_to_do():

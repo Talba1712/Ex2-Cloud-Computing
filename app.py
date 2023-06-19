@@ -127,7 +127,7 @@ def scaling():
     while True:
         create_new_worker = False
         for work in work_q:
-            if timeInQueue(work) > 3 and len(work_q) > 5:
+            if timeInQueue(work) > 3 and len(work_q) > 5 and len(workers) < 5:
                 new_worker_id = createNewWorker()
                 workers.append(new_worker_id)
                 create_new_worker = True

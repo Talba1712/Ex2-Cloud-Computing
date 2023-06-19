@@ -85,7 +85,7 @@ ssh -i $KEY_PEM -o "StrictHostKeyChecking=no" -o "ConnectionAttempts=60" ubuntu@
     sudo apt install python3-pip -y
     pip install boto3
     # run app
-    nohup python3 app.py $PUBLIC_IP1 $PUBLIC_IP2 $ACCESS_KEY_ID $SECRET_ACCESS_KEY $KEY_NAME &>/dev/null &
+    nohup python3 app.py $PUBLIC_IP1 $PUBLIC_IP2 $ACCESS_KEY_ID $SECRET_ACCESS_KEY $KEY_NAME $ &>/dev/null &
     nohup python3 worker.py $PUBLIC_IP1 $PUBLIC_IP2 &>/dev/null &
     exit
 EOF

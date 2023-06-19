@@ -93,7 +93,7 @@ def createNewWorker():
         MaxCount=1,
         ImageId="ami-042e8287309f5df03",
         InstanceType="t2.micro",
-        KeyName="cloud-course-`date +'%N'`",
+        KeyName="cloud-course-$(date +%s)",
         UserData=f"""#!/bin/bash
                 set -e -x
                 sudo apt update
